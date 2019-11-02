@@ -13,7 +13,7 @@ class Hermes : NSObject {
 
     // Service type must be a unique string, at most 15 characters long
     // and can contain only ASCII lowercase letters, numbers and hyphens.
-    private let HermesType = "example-color"
+    private let HermesType = "hermes"
 
     private let myPeerId = MCPeerID(displayName: UIDevice.current.name)
     private let serviceAdvertiser : MCNearbyServiceAdvertiser
@@ -46,14 +46,14 @@ class Hermes : NSObject {
     }
 
     func send(message : String) {
-        NSLog("%@", "sendColor: \(message) to \(session.connectedPeers.count) peers")
+        
 
         if session.connectedPeers.count > 0 {
             do {
                 try self.session.send(message.data(using: .utf8)!, toPeers: session.connectedPeers, with: .reliable)
             }
             catch let error {
-                NSLog("%@", "Error for sending: \(error)")
+                // error sending data
             }
         }
 
@@ -64,11 +64,11 @@ class Hermes : NSObject {
 extension Hermes : MCNearbyServiceAdvertiserDelegate {
 
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
-        NSLog("%@", "didNotStartAdvertisingPeer: \(error)")
+        // did not advertise self. We have another error...
     }
 
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
-        NSLog("%@", "didReceiveInvitationFromPeer \(peerID)")
+        // a peer invited us
         invitationHandler(true, self.session)
     }
 
@@ -77,17 +77,16 @@ extension Hermes : MCNearbyServiceAdvertiserDelegate {
 extension Hermes : MCNearbyServiceBrowserDelegate {
 
     func browser(_ browser: MCNearbyServiceBrowser, didNotStartBrowsingForPeers error: Error) {
-        NSLog("%@", "didNotStartBrowsingForPeers: \(error)")
+        // had an error...
     }
 
     func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
-        NSLog("%@", "foundPeer: \(peerID)")
-        NSLog("%@", "invitePeer: \(peerID)")
+        // invite peer
         browser.invitePeer(peerID, to: self.session, withContext: nil, timeout: 10)
     }
 
     func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
-        NSLog("%@", "lostPeer: \(peerID)")
+        // we lost a peer!!!
     }
 
 }
@@ -95,27 +94,27 @@ extension Hermes : MCNearbyServiceBrowserDelegate {
 extension Hermes : MCSessionDelegate {
 
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
-        NSLog("%@", "peer \(peerID) didChangeState: \(state.rawValue)")
+        // some peer changed their state
         self.delegate?.connectedDevicesChanged(manager: self, connectedDevices:
             session.connectedPeers.map{$0.displayName})
     }
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-        NSLog("%@", "didReceiveData: \(data)")
+        // recieived the data
         let str = String(data: data, encoding: .utf8)!
         self.delegate?.sendMessage(manager: self, colorString: str)
     }
 
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
-        NSLog("%@", "didReceiveStream")
+        // recieved a stream
     }
 
     func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {
-        NSLog("%@", "didStartReceivingResourceWithName")
+        // started recieveing a resource
     }
 
     func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {
-        NSLog("%@", "didFinishReceivingResourceWithName")
+        // done recieving a resource
     }
 
 }
