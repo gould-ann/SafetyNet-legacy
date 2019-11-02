@@ -50,8 +50,8 @@ extension ColorSwitchViewController : HermesDelegate {
                 
             }
              */
-            let message = self.decodeJSON(colorString: colorString)
-            self.data_got.text! += colorString + "\n"
+            var message = self.decodeJSON(colorString: colorString)
+            self.data_got.text! += message + "\n"
             
             /*
             // if you have not already recieved the message, send it out again
