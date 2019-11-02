@@ -4,47 +4,37 @@ class ColorSwitchViewController: UIViewController {
 
     @IBOutlet weak var connectionsLabel: UILabel!
 
-    let colorService = ColorService()
+    let hermes = Hermes()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        colorService.delegate = self
+        hermes.delegate = self
     }
 
-    @IBAction func redTapped() {
-        self.change(color: .red)
-        colorService.send(colorName: self.typed_text.text!)
-    }
 
-    @IBAction func yellowTapped() {
-        self.change(color: .yellow)
-        colorService.send(colorName: self.typed_text.text!)
-    }
 
     @IBOutlet weak var typed_text: UITextField!
-    
-    @IBAction func send(_ sender: Any) {
-    }
     @IBOutlet weak var data_got: UILabel!
     
-    
-    func change(color : UIColor) {
-        UIView.animate(withDuration: 0.2) {
-            self.view.backgroundColor = color
-        }
+    @IBAction func send(_ sender: Any) {
+        hermes.send(message: self.typed_text.text!)
     }
+    
+    
+    
+    
     
 }
 
-extension ColorSwitchViewController : ColorServiceDelegate {
+extension ColorSwitchViewController : HermesDelegate {
 
-    func connectedDevicesChanged(manager: ColorService, connectedDevices: [String]) {
+    func connectedDevicesChanged(manager: Hermes, connectedDevices: [String]) {
         OperationQueue.main.addOperation {
             self.connectionsLabel.text = "Connections: \(connectedDevices)"
         }
     }
 
-    func colorChanged(manager: ColorService, colorString: String) {
+    func sendMessage(manager: Hermes, colorString: String) {
         OperationQueue.main.addOperation {
             self.data_got.text = colorString
         }
