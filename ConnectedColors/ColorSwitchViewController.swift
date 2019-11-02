@@ -20,7 +20,8 @@ class ColorSwitchViewController: UIViewController {
     @IBAction func send(_ sender: Any) {
         let id = generateMessageID()
         var json = "{\"messageID\": \"" + String(id) + "\""
-        json += ", \"messageData\": \"" + typed_text.text! + "\"}"
+        json += ", \"messageData\": \"" + typed_text.text! + "\""
+        json += ", \"flag\": \"00000\"}"
         hermes.send(message: json)
     }
     
@@ -31,10 +32,8 @@ class ColorSwitchViewController: UIViewController {
         while(contains) {
             id = Int.random(in: 0 ..< 100000)
             contains = false
-            for existingID in all_message_ids {
-                if(existingID == id) {
-                    contains = true
-                }
+            if(all_message_ids.contains(id)) {
+                contains = true
             }
         }
         all_message_ids.append(id)
@@ -49,6 +48,7 @@ extension ColorSwitchViewController : HermesDelegate {
     struct Message: Codable {
         let messageID: Int
         let messageData: String
+        let flag: String
     }
 
     func connectedDevicesChanged(manager: Hermes, connectedDevices: [String]) {
@@ -67,15 +67,16 @@ extension ColorSwitchViewController : HermesDelegate {
             }
              */
             let message = self.decodeJSON(colorString: colorString)
-            if(message != nil) {
-                self.data_got.text! += message!.messageID + " : " + message!.messageData + "\n"
+            if(message!.flag == "00000") {
+                self.data_got.text! += message!.messageData + "\n"
             }
-            /*
+            
             // if you have not already recieved the message, send it out again
-            if(!self.all_messages.contains(555)){
+            if(!self.all_message_ids.contains(message!.messageID)){
                 self.hermes.send(message: colorString)
+                self.all_message_ids.append(message!.messageID)
             }
-            */
+            
         }
     }
     
