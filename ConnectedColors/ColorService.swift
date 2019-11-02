@@ -102,7 +102,7 @@ extension Hermes : MCSessionDelegate {
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         NSLog("%@", "didReceiveData: \(data)")
-        let str = "\(peerID): " + String(data: data, encoding: .utf8)!
+        let str = String(data: data, encoding: .utf8)!
         self.delegate?.sendMessage(manager: self, colorString: str)
     }
 
