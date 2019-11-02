@@ -45,15 +45,21 @@ class Hermes : NSObject {
         self.serviceBrowser.stopBrowsingForPeers()
     }
 
-    func send(message : String) {
+    func send(id : Int, message : String) {
         
 
         if session.connectedPeers.count > 0 {
+            
+            var json = "{\"messageID\":" + String(id)
+            json += ", \"messageData\": \"" + message + "\""
+            json += ", \"flag\": \"00000\"}"
+            print(json)
+            
             do {
-                try self.session.send(message.data(using: .utf8)!, toPeers: session.connectedPeers, with: .reliable)
+                try self.session.send(json.data(using: .utf8)!, toPeers: session.connectedPeers, with: .reliable)
             }
             catch let error {
-                // error sending data
+                print(error)
             }
         }
 

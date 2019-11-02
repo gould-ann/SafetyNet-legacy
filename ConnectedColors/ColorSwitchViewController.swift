@@ -19,11 +19,7 @@ class ColorSwitchViewController: UIViewController {
     
     @IBAction func send(_ sender: Any) {
         let id = generateMessageID()
-        var json = "{\"messageID\":" + String(id)
-        json += ", \"messageData\": \"" + typed_text.text! + "\""
-        json += ", \"flag\": \"00000\"}"
-        print(json)
-        hermes.send(message: json)
+        hermes.send(id: id, message: typed_text.text!)
     }
     
     func generateMessageID() -> Int {
@@ -72,7 +68,7 @@ extension ColorSwitchViewController : HermesDelegate {
             
             // if you have not already recieved the message, send it out again
             if(!self.all_message_ids.contains(message!.messageID)){
-                self.hermes.send(message: colorString)
+                self.hermes.send(id: message!.messageID, message: message!.messageData)
                 self.all_message_ids.append(message!.messageID)
                 
                 if(message!.flag == "00000") {
