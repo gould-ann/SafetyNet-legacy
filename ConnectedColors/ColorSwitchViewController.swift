@@ -29,7 +29,6 @@ class ColorSwitchViewController: UIViewController {
 extension ColorSwitchViewController : HermesDelegate {
     
     struct Message: Codable {
-        let messageID: Int
         let messageData: String
         let roomName: String
     }
