@@ -19,9 +19,10 @@ class ColorSwitchViewController: UIViewController {
     
     @IBAction func send(_ sender: Any) {
         let id = generateMessageID()
-        var json = "{\"messageID\": \"" + String(id) + "\""
+        var json = "{\"messageID\":" + String(id)
         json += ", \"messageData\": \"" + typed_text.text! + "\""
         json += ", \"flag\": \"00000\"}"
+        print(json)
         hermes.send(message: json)
     }
     
