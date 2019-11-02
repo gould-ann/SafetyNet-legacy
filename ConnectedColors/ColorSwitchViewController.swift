@@ -85,12 +85,23 @@ extension ColorSwitchViewController : HermesDelegate {
                 self.hermes.send(message: colorString)
                 self.all_message_ids.append(message!.messageID)
                 
-                let flag = try RNCryptor.decrypt(data: message!.flag, withPassword: self.room!.text)
+                var flag: String
+                do {
+                     flag = try String(RNCryptor.decrypt(data: message!.flag.data(using: .ascii)!, withPassword: self.room!.text!), encoding: String.Encoding.utf8) as String!
+                } catch {
+                    
+                }
+               
                 print(flag)
                 
                 
                 if(flag == "00000") {
-                    let message_data = try RNCryptor.decrypt(data: message!.messageData, withPassword: self.room!.text)
+                    var message_data: Data
+                    do {
+                        message_data = try RNCryptor.decrypt(data: message!.messageData.data(using: .ascii)!, withPassword: self.room!.text!)
+                    } catch {
+                        
+                    }
                     self.data_got.text! += message_data + "\n"
                 }
             }
