@@ -18,8 +18,7 @@ class ColorSwitchViewController: UIViewController {
     @IBOutlet weak var room: UITextField!
     
     @IBAction func send(_ sender: Any) {
-        var json = "{\"messageData\": " + "\"" + typed_text.text! + "\""
-        json += ", \"roomName\": " + "\""  + room.text! + "\"" + "}"
+        var json = "{\"messageData\": " + "\"" + typed_text.text! + "\"" + "}"
         hermes.send(message: json)
     }
 }
@@ -30,7 +29,6 @@ extension ColorSwitchViewController : HermesDelegate {
     
     struct Message: Codable {
         let messageData: String
-        let roomName: String
     }
 
     func connectedDevicesChanged(manager: Hermes, connectedDevices: [String]) {
@@ -46,31 +44,31 @@ extension ColorSwitchViewController : HermesDelegate {
             /*
             if(self.room.text! == colorString.description.substring(from: colorString.description.range(of: "%")!.upperBound)) {
                 //self.data_got.text! += colorString + "\n"
-                
             }
              */
-            var message = self.decodeJSON(colorString: colorString)
-            self.data_got.text! += message + "\n"
-            
+            let message = self.decodeJSON(colorString: colorString)
+            if(message != nil) {
+                self.data_got.text! += message!.messageData + "\n"
+            }
             /*
             // if you have not already recieved the message, send it out again
             if(!self.all_messages.contains(555)){
                 self.hermes.send(message: colorString)
             }
             */
-            
         }
     }
     
-    func decodeJSON(colorString: String) -> String{
+    func decodeJSON(colorString: String) -> Message? {
+        //Decode
         guard let data = colorString.data(using: String.Encoding.utf8) else { fatalError("☠️") }
         do {
             let newMessage = try JSONDecoder().decode(Message.self, from: data)
             print(newMessage)
-            return newMessage.messageData
+            return newMessage
         } catch {
             print(error)
         }
-        return ""
+        return nil
     }
 }
