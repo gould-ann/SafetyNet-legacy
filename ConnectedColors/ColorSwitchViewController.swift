@@ -18,7 +18,8 @@ class ColorSwitchViewController: UIViewController {
     @IBOutlet weak var room: UITextField!
     
     @IBAction func send(_ sender: Any) {
-        let json = "{\"messageData\": " + "\"" + typed_text.text + "\"" + ", \"roomName\": " + "\""  + room.text + "\"" + "}"
+        var json = "{\"messageData\": " + "\"" + typed_text.text + "\""
+        json += ", \"roomName\": " + "\""  + room.text + "\"" + "}"
         hermes.send(message: json)
     }
 }
@@ -49,8 +50,8 @@ extension ColorSwitchViewController : HermesDelegate {
                 
             }
              */
-            self.decodeJSON(colorString: colorString)
-            
+            let message = self.decodeJSON(colorString: colorString)
+            self.data_got.text! += colorString + "\n"
             
             /*
             // if you have not already recieved the message, send it out again
