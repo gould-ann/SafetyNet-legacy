@@ -5,7 +5,7 @@ class ColorSwitchViewController: UIViewController {
     @IBOutlet weak var connectionsLabel: UILabel!
 
     let hermes = Hermes()
-    var all_messages: [Int] = [555]
+    var all_message_ids: [Int] = []
     
     
     override func viewDidLoad() {
@@ -18,8 +18,27 @@ class ColorSwitchViewController: UIViewController {
     @IBOutlet weak var room: UITextField!
     
     @IBAction func send(_ sender: Any) {
-        var json = "{\"messageData\": " + "\"" + typed_text.text! + "\"" + "}"
+        let id = generateMessageID()
+        var json = "{\"messageID\": \"" + String(id) + "\""
+        json += ", \"messageData\": \"" + typed_text.text! + "\"}"
         hermes.send(message: json)
+    }
+    
+    func generateMessageID() -> Int {
+        var id = 0
+        var contains = true;
+        
+        while(contains) {
+            id = Int.random(in: 0 ..< 100000)
+            contains = false
+            for existingID in all_message_ids {
+                if(existingID == id) {
+                    contains = true
+                }
+            }
+        }
+        all_message_ids.append(id)
+        return id
     }
 }
 //\"messageID\": " + String(id) + ",
@@ -28,6 +47,7 @@ class ColorSwitchViewController: UIViewController {
 extension ColorSwitchViewController : HermesDelegate {
     
     struct Message: Codable {
+        let messageID: Int
         let messageData: String
     }
 
@@ -48,7 +68,7 @@ extension ColorSwitchViewController : HermesDelegate {
              */
             let message = self.decodeJSON(colorString: colorString)
             if(message != nil) {
-                self.data_got.text! += message!.messageData + "\n"
+                self.data_got.text! += message!.messageID + " : " + message!.messageData + "\n"
             }
             /*
             // if you have not already recieved the message, send it out again
