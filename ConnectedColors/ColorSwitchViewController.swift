@@ -29,6 +29,7 @@ class ColorSwitchViewController: UIViewController {
 extension ColorSwitchViewController : HermesDelegate {
 
     func connectedDevicesChanged(manager: Hermes, connectedDevices: [String]) {
+        print("here")
         OperationQueue.main.addOperation {
             self.connectionsLabel.text = "Connections: \(connectedDevices)"
         }
@@ -36,7 +37,7 @@ extension ColorSwitchViewController : HermesDelegate {
 
     func sendMessage(manager: Hermes, colorString: String) {
         OperationQueue.main.addOperation {
-            self.data_got.text = colorString
+            self.data_got.text! += colorString + "\n"
         }
     }
 
