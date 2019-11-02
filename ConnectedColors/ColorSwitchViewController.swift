@@ -1,5 +1,5 @@
 import UIKit
-
+import RNCryptor
 class ColorSwitchViewController: UIViewController {
 
     @IBOutlet weak var connectionsLabel: UILabel!
@@ -18,8 +18,22 @@ class ColorSwitchViewController: UIViewController {
     @IBOutlet weak var room: UITextField!
     
     @IBAction func send(_ sender: Any) {
+        var chatroomID = "General"
+        if(room.text! != "") {
+            chatroomID = room.text!
+        }
+        
         let id = generateMessageID()
-        hermes.send(id: id, message: typed_text.text!)
+        let data: NSData = typed_text.text!.data(using: String.Encoding.utf8)! as NSData
+        let zeroes: NSData = "00000".data(using: String.Encoding.utf8)! as NSData
+        let cipherText = RNCryptor.encrypt(data: data as Data, withPassword: chatroomID)
+        let cipherZero = RNCryptor.encrypt(data: zeroes as Data, withPassword: chatroomID)
+        var json = "{\"messageID\":" + String(id)
+        json += ", \"messageData\": \"" + String(decoding: cipherText, as: UTF8.self) + "\""
+        json += ", \"flag\": \"" + String(decoding: cipherZero, as: UTF8.self) + "\"}"
+        print(json)
+        
+        hermes.send(message: json)
     }
     
     func generateMessageID() -> Int {
@@ -68,7 +82,7 @@ extension ColorSwitchViewController : HermesDelegate {
             
             // if you have not already recieved the message, send it out again
             if(!self.all_message_ids.contains(message!.messageID)){
-                self.hermes.send(id: message!.messageID, message: message!.messageData)
+                self.hermes.send(message: colorString)
                 self.all_message_ids.append(message!.messageID)
                 
                 if(message!.flag == "00000") {
