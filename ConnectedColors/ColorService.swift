@@ -1,5 +1,6 @@
 import Foundation
 import MultipeerConnectivity
+import RNCryptor
 
 protocol HermesDelegate {
 
