@@ -68,14 +68,16 @@ extension ColorSwitchViewController : HermesDelegate {
             }
              */
             let message = self.decodeJSON(colorString: colorString)
-            if(message!.flag == "00000") {
-                self.data_got.text! += message!.messageData + "\n"
-            }
+            
             
             // if you have not already recieved the message, send it out again
             if(!self.all_message_ids.contains(message!.messageID)){
                 self.hermes.send(message: colorString)
                 self.all_message_ids.append(message!.messageID)
+                
+                if(message!.flag == "00000") {
+                    self.data_got.text! += message!.messageData + "\n"
+                }
             }
             
         }
