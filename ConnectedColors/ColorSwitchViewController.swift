@@ -84,14 +84,15 @@ extension ColorSwitchViewController : HermesDelegate {
                 if(self.room.text! != "") {
                     chatroomID = self.room.text!
                 }
-                
-                let flag_string = message!.flag.fromBase64()
+                let pre_flag_data = Data(base64Encoded: message!.flag)
+                let flag_string = String(data: pre_flag_data!, encoding: String.Encoding.utf8)
                 let flag_data: NSData = flag_string!.data(using: String.Encoding.utf8)! as NSData
                 do {
                     let decrypted_flag_data = try RNCryptor.decrypt(data: flag_data as Data, withPassword: chatroomID)
                     let flag = String(decoding: decrypted_flag_data, as: UTF8.self)
                     if(flag == "00000") {
-                        let message_string = message!.messageData.fromBase64()
+                        let pre_message_data = Data(base64Encoded: message!.messageData)
+                        let message_string = String(data: pre_message_data!, encoding: String.Encoding.utf8)
                         let message_data: NSData = message_string!.data(using: String.Encoding.utf8)! as NSData
                         do {
                             let decrypted_message_data = try RNCryptor.decrypt(data: message_data as Data, withPassword: chatroomID)
@@ -124,14 +125,6 @@ extension ColorSwitchViewController : HermesDelegate {
 }
 
 extension String {
-    func fromBase64() -> String? {
-        guard let data = Data(base64Encoded: self) else {
-            return nil
-        }
-
-        return String(data: data, encoding: .utf8)
-    }
-
     func toBase64() -> String {
         return Data(self.utf8).base64EncodedString()
     }
