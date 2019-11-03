@@ -71,38 +71,35 @@ extension ColorSwitchViewController : HermesDelegate {
 
     func sendMessage(manager: Hermes, colorString: String) {
         OperationQueue.main.addOperation {
-//            print("RECIEVED", self.room.text!, colorString.description.substring(from: colorString.description.range(of: "%")!.upperBound), self.room.text! == colorString.description.substring(from: colorString.description.range(of: "%")!.upperBound))
-            /*
-            if(self.room.text! == colorString.description.substring(from: colorString.description.range(of: "%")!.upperBound)) {
-                //self.data_got.text! += colorString + "\n"
-            }
-             */
             let message = self.decodeJSON(colorString: colorString)
             
             
             // if you have not already recieved the message, send it out again
             if(!self.all_message_ids.contains(message!.messageID)){
                 self.hermes.send(message: colorString)
-                self.all_message_ids.append(message!.messageID)
                 
-                var flag: String
-                do {
-                     flag = try String(RNCryptor.decrypt(data: message!.flag.data(using: .ascii)!, withPassword: self.room!.text!), encoding: String.Encoding.utf8) as String!
-                } catch {
-                    
+                
+                var chatroomID = "General"
+                if(self.room.text! != "") {
+                    chatroomID = self.room.text!
                 }
-               
-                print(flag)
                 
-                
-                if(flag == "00000") {
-                    var message_data: Data
-                    do {
-                        message_data = try RNCryptor.decrypt(data: message!.messageData.data(using: .ascii)!, withPassword: self.room!.text!)
-                    } catch {
-                        
+                let flag_data: NSData = message!.flag.data(using: String.Encoding.utf8)! as NSData
+                do {
+                    let decrypted_flag_data = try RNCryptor.decrypt(data: flag_data as Data, withPassword: chatroomID)
+                    let flag = String(decoding: decrypted_flag_data, as: UTF8.self)
+                    if(flag == "00000") {
+                        let message_data: NSData = message!.messageData.data(using: String.Encoding.utf8)! as NSData
+                        do {
+                            let decrypted_message_data = try RNCryptor.decrypt(data: message_data as Data, withPassword: chatroomID)
+                            let message = String(decoding: decrypted_message_data, as: UTF8.self)
+                            self.data_got.text! += message + "\n"
+                        } catch {
+                            print("Error Decrypting Message")
+                        }
                     }
-                    self.data_got.text! += message_data + "\n"
+                } catch {
+                    print("Error Decrypting Flag")
                 }
             }
             
