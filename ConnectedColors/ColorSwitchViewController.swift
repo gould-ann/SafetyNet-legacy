@@ -26,14 +26,12 @@ class ColorSwitchViewController: UIViewController {
         let id = generateMessageID()
         let data: NSData = typed_text.text!.data(using: String.Encoding.utf8)! as NSData
         let zeroes: NSData = "00000".data(using: String.Encoding.utf8)! as NSData
-        //let cipherText = RNCryptor.encrypt(data: data as Data, withPassword: chatroomID)
-        //let cipherZero = RNCryptor.encrypt(data: zeroes as Data, withPassword: chatroomID)
-//        var json = "{\"messageID\":" + String(id)
-//        json += ", \"messageData\": \"" + String(decoding: cipherText, as: UTF8.self) + "\""
-//        json += ", \"flag\": \"" + String(decoding: cipherZero, as: UTF8.self) + "\"}"
+        let cipherText = RNCryptor.encrypt(data: data as Data, withPassword: chatroomID)
+        let cipherZero = RNCryptor.encrypt(data: zeroes as Data, withPassword: chatroomID)
         var json = "{\"messageID\":" + String(id)
-        json += ", \"messageData\": \"" + typed_text.text! + "\""
-        json += ", \"flag\": \"" + "00000" + "\"}"
+        json += ", \"messageData\": \"" + String(decoding: cipherText, as: UTF8.self).toBase64() + "\""
+        json += ", \"flag\": \"" + String(decoding: cipherZero, as: UTF8.self).toBase64() + "\"}"
+        
         print(json)
         
         hermes.send(message: json)
@@ -87,31 +85,24 @@ extension ColorSwitchViewController : HermesDelegate {
                     chatroomID = self.room.text!
                 }
                 
-//                let flag_data: NSData = message!.flag.data(using: String.Encoding.utf8)! as NSData
-//                do {
-//                    let decrypted_flag_data = try RNCryptor.decrypt(data: flag_data as Data, withPassword: chatroomID)
-//                    let flag = String(decoding: decrypted_flag_data, as: UTF8.self)
-//                    if(flag == "00000") {
-//                        let message_data: NSData = message!.messageData.data(using: String.Encoding.utf8)! as NSData
-//                        do {
-//                            let decrypted_message_data = try RNCryptor.decrypt(data: message_data as Data, withPassword: chatroomID)
-//                            let message = String(decoding: decrypted_message_data, as: UTF8.self)
-//                            self.data_got.text! += message + "\n"
-//                        } catch {
-//                            print("Error Decrypting Message")
-//                        }
-//                    }
-//                } catch {
-//                    print("Error Decrypting Flag")
-//                }
-                
-                if(message!.flag == "00000") {
-                //let message_data: NSData = message!.messageData.data(using: String.Encoding.utf8)! as NSData
-                //do {
-                    self.data_got.text! += message!.messageData + "\n"
-                //} catch {
-                  //  print("Error Decrypting Message")
-                //}
+                let flag_string = message!.flag.fromBase64()
+                let flag_data: NSData = flag_string!.data(using: String.Encoding.utf8)! as NSData
+                do {
+                    let decrypted_flag_data = try RNCryptor.decrypt(data: flag_data as Data, withPassword: chatroomID)
+                    let flag = String(decoding: decrypted_flag_data, as: UTF8.self)
+                    if(flag == "00000") {
+                        let message_string = message!.messageData.fromBase64()
+                        let message_data: NSData = message_string!.data(using: String.Encoding.utf8)! as NSData
+                        do {
+                            let decrypted_message_data = try RNCryptor.decrypt(data: message_data as Data, withPassword: chatroomID)
+                            let message = String(decoding: decrypted_message_data, as: UTF8.self)
+                            self.data_got.text! += message + "\n"
+                        } catch {
+                            print("Error Decrypting Message")
+                        }
+                    }
+                } catch {
+                    print("Error Decrypting Flag")
                 }
             }
             
@@ -129,5 +120,19 @@ extension ColorSwitchViewController : HermesDelegate {
             print(error)
         }
         return nil
+    }
+}
+
+extension String {
+    func fromBase64() -> String? {
+        guard let data = Data(base64Encoded: self) else {
+            return nil
+        }
+
+        return String(data: data, encoding: .utf8)
+    }
+
+    func toBase64() -> String {
+        return Data(self.utf8).base64EncodedString()
     }
 }
